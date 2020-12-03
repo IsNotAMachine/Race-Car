@@ -1,0 +1,206 @@
+package application;
+
+/*
+ * Name: Mike Barabolak
+ * Class: Intro to JAVA
+ * Program: Race Car
+ * Description:
+ * Make a racecar move and change colors
+ * 
+ * 
+ */
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
+import javafx.scene.input.MouseButton;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
+public class RaceCar extends Application 
+{
+	  public class CarPane extends Pane
+	  {
+	        public final double radius = 20;
+	        private double x = radius, y = radius;
+	        private double dx = 1;
+	        private Circle circle = new Circle(x+ 10, y, radius);
+	        private Circle circle2 = new Circle(x + 60, y, radius);
+	        private Rectangle body = new Rectangle(x - 20, y - 45, 120, 25);
+	        private Polygon roof = new Polygon
+	            (
+	                x, y - 45, 
+	                x + 70, y - 45, 
+	                x + 50, y - 90, 
+	                x + 10, y - 90
+	            );
+	        
+	        private Timeline animation;
+			
+	        public void setColor(Color c)
+			{
+				body.setFill(c);
+			}
+			
+	        public CarPane() 
+	        {
+	            circle.setFill(Color.BLACK);
+	            circle2.setFill(Color.BLACK);
+	            body.setFill(Color.RED);
+	            roof.setFill(Color.BLACK);
+	            
+	            getChildren().addAll(circle, circle2, body, roof); 
+	            
+	            animation = new Timeline(
+	                new KeyFrame(Duration.millis(50), e -> moveCar()));
+	            animation.setCycleCount(Timeline.INDEFINITE);
+	
+	        }
+
+	        public void play() 
+	        {
+	            animation.play();
+	        }
+
+	        public void pause() 
+	        {
+	            animation.pause();
+	        }
+
+	        public void increaseSpeed() 
+	        {
+	            animation.setRate(animation.getRate() + 2);
+	        }
+
+	        public void decreaseSpeed() 
+	        {
+	            animation.setRate(
+	            animation.getRate() > 0 ? animation.getRate() - 2 : 0);
+	        }
+
+
+	
+			protected void moveCar() 
+	        {
+	            if (x < getWidth()) {
+	            dx *= 1;
+	            }
+	            else
+	            {
+	            	x=0;
+	            }
+
+	           
+	            x += dx;
+	            body.setX(x-25);
+	            roof.setLayoutX(x-25);
+	            circle.setCenterX(x);
+	            circle2.setCenterX(x + 60);   
+	        }
+	}
+
+
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+
+		CarPane cpane = new CarPane();
+        BorderPane bpane = new BorderPane();
+        HBox hbox = new HBox(8);
+        
+        HBox ipane = new HBox(cpane);
+        ipane.setAlignment(Pos.BOTTOM_LEFT);
+        bpane.setBottom(ipane);
+        
+        
+        Button btStart = new Button("Start");
+        btStart.setOnAction( e -> 
+        {
+                cpane.play();
+        });
+       
+        Button btStop = new Button("Stop");
+        btStop.setOnAction( e ->
+        {
+               cpane.pause();
+        });
+  
+        
+        VBox vbox = new VBox(10);
+        RadioButton rbBlue = new RadioButton("Blue");
+        RadioButton rbGreen = new RadioButton("Green");
+        RadioButton rbRed = new RadioButton("Red");
+        RadioButton rbYellow = new RadioButton("Yellow");
+  
+       
+        
+        ToggleGroup tgroup = new ToggleGroup();
+        rbBlue.setToggleGroup(tgroup);
+        rbGreen.setToggleGroup(tgroup);
+        rbRed.setToggleGroup(tgroup);
+        rbYellow.setToggleGroup(tgroup);
+        
+        rbRed.setSelected(true);
+        
+        rbGreen.setOnAction(e ->
+        {
+        		cpane.setColor(Color.GREEN);
+        });
+        
+        rbRed.setOnAction(e ->
+        {
+        		cpane.setColor(Color.RED);
+        });
+ 
+        rbBlue.setOnAction(e ->
+        {
+        		cpane.setColor(Color.BLUE);
+        });
+        
+        rbYellow.setOnAction(e ->
+        {
+        		cpane.setColor(Color.YELLOW);
+        });
+
+        cpane.setOnMouseClicked(e -> 
+        {
+            if(e.getButton() == MouseButton.PRIMARY)
+                cpane.increaseSpeed();
+            else if (e.getButton() == MouseButton.SECONDARY)
+            {
+                cpane.decreaseSpeed();
+            }
+        });
+        hbox.getChildren().addAll(btStart, btStop);
+        vbox.getChildren().addAll(rbBlue, rbGreen, rbRed, rbYellow);
+        bpane.setLeft(vbox);
+        bpane.setTop(hbox);
+        
+        
+        Scene scene = new Scene(bpane, 600, 600);
+        primaryStage.setTitle("Racing Car");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+        
+        cpane.requestFocus();
+		
+	}
+
+	public static void main(String[] args) 
+	{
+		launch(args);
+	}
+
+}
